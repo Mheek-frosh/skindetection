@@ -92,6 +92,13 @@ export const ScanProvider = ({ children }) => {
   const [loadingMessage, setLoadingMessage] = useState('');
   const [country, setCountry] = useState('Nigeria');
   const [toasts, setToasts] = useState([]);
+  
+  // Auth state
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('dermascan_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('skin_scan_history', JSON.stringify(history));
@@ -107,6 +114,28 @@ export const ScanProvider = ({ children }) => {
 
   const removeToast = (id) => {
     setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const registerUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem('dermascan_user', JSON.stringify(userData));
+    setAuthModalOpen(false);
+    showToast(`Welcome to DermaScanAI, ${userData.name}!`, 'success');
+  };
+
+  const loginUser = (email, name) => {
+    const userData = { email, name: name || 'User', country };
+    setUser(userData);
+    localStorage.setItem('dermascan_user', JSON.stringify(userData));
+    setAuthModalOpen(false);
+    showToast(`Welcome back, ${userData.name}!`, 'success');
+  };
+
+  const logoutUser = () => {
+    setUser(null);
+    localStorage.removeItem('dermascan_user');
+    setActiveScan(null);
+    showToast('You have been logged out.', 'info');
   };
 
   const startScan = (imageFileOrUrl) => {
@@ -149,7 +178,10 @@ export const ScanProvider = ({ children }) => {
         };
 
         setActiveScan(newScan);
-        setHistory(prev => [newScan, ...prev]);
+        // Only append to history log if user is logged in
+        if (user) {
+          setHistory(prev => [newScan, ...prev]);
+        }
         setLoading(false);
         showToast('Skin analysis completed successfully!');
       }
@@ -178,6 +210,12 @@ export const ScanProvider = ({ children }) => {
       loadingMessage,
       country,
       setCountry,
+      user,
+      registerUser,
+      loginUser,
+      logoutUser,
+      authModalOpen,
+      setAuthModalOpen,
       startScan,
       clearActiveScan,
       deleteHistoryItem,

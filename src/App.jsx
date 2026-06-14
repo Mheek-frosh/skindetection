@@ -4,6 +4,8 @@ import { ScanProvider } from './context/ScanContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ToastContainer from './components/Toast';
+import AuthModal from './components/AuthModal';
+import CookieConsent from './components/CookieConsent';
 import AppRoutes from './routes/AppRoutes';
 
 export default function App() {
@@ -25,6 +27,12 @@ export default function App() {
 
           {/* Floating Toast Alert Banner */}
           <ToastContainer />
+
+          {/* Authentication Modal Dialog */}
+          <AuthModal />
+
+          {/* Cookie Acceptance Dialog */}
+          <CookieConsent />
           
         </div>
       </Router>

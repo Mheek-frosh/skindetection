@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Calendar, FileText, ChevronRight, ShieldAlert } from 'lucide-react';
+import { Trash2, Calendar, FileText, ChevronRight, ShieldAlert, Lock, UserPlus } from 'lucide-react';
 import { useScan } from '../context/ScanContext';
 import Card from '../components/Card';
 import Button from '../components/Button';
 
 export default function HistoryPage() {
-  const { history, deleteHistoryItem, clearHistory, setActiveScan } = useScan();
+  const { history, deleteHistoryItem, clearHistory, setActiveScan, user, setAuthModalOpen } = useScan();
   const navigate = useNavigate();
 
   const handleCardClick = (scan) => {
@@ -26,6 +26,54 @@ export default function HistoryPage() {
     }
   };
 
+  // 1. Auth check: If user is not logged in, render the professional auth locking prompt
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 md:px-6 py-16 flex-grow flex items-center justify-center min-h-[65vh]">
+        <Card className="max-w-md w-full text-center p-8 border-slate-100 shadow-xl relative overflow-hidden">
+          {/* Top color strip */}
+          <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-brand-400 to-medgreen-400" />
+          
+          <div className="w-16 h-16 rounded-2xl bg-brand-50 text-brand-500 flex items-center justify-center mx-auto mb-6 shadow-inner">
+            <Lock className="w-6.5 h-6.5" />
+          </div>
+
+          <h2 className="text-xl font-bold text-slate-800 mb-2">
+            History Log is Locked
+          </h2>
+          
+          <p className="text-slate-400 text-xs leading-relaxed max-w-sm mx-auto mb-8">
+            To view, manage, and log your diagnostic history reports, you must have an active session. Create an account or sign in to proceed.
+          </p>
+
+          <div className="flex flex-col gap-3">
+            <Button
+              variant="primary"
+              size="md"
+              iconLeft={<UserPlus className="w-4 h-4" />}
+              onClick={() => setAuthModalOpen(true)}
+            >
+              Sign Up or Sign In
+            </Button>
+            <Button
+              variant="ghost"
+              size="md"
+              className="text-slate-500 text-xs"
+              onClick={() => navigate('/')}
+            >
+              Back to Home
+            </Button>
+          </div>
+
+          <div className="mt-8 pt-4 border-t border-slate-50 text-[10px] text-slate-400 leading-relaxed">
+            All records are stored within your client local storage and linked to your registered profile details.
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // 2. Normal render for logged in users
   return (
     <div className="container mx-auto px-4 md:px-6 py-12 flex-grow">
       
@@ -94,7 +142,7 @@ export default function HistoryPage() {
               <div className="flex-grow flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
+                    <Calendar className="w-3.5 h-3.5" />
                     {scan.date}
                   </span>
                   <span className="text-xs font-bold text-slate-800 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100">
